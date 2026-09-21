@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="googlebot" content="notranslate">
+<meta name="robots" content="notranslate">
+<title>汉语词汇练习 · 填一填</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{
+  margin:0;padding:0;
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;
+  -webkit-touch-callout:none;-webkit-user-drag:none;
+}
+body{
+  min-height:100vh;min-height:100dvh;
+  display:flex;align-items:center;justify-content:center;
+  padding:12px;
+  background:linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 25%,#ffe0f0 55%,#fff5b7 100%);
+  background-size:300% 300%;
+  animation:bgmove 16s ease infinite;
+  color:#2d3436;overflow-x:hidden;
+}
+@keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+#app{width:100%;max-width:680px;}
+
+.screen{display:none;}
+.screen.active{display:block;animation:fadeUp .45s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.card{
+  background:rgba(255,255,255,.94);
+  border-radius:26px;
+  padding:22px 18px 24px;
+  box-shadow:0 14px 40px rgba(108,92,231,.18),0 4px 12px rgba(0,0,0,.06);
+  border:3px solid #fff;
+}
+
+/* ---------- 开始页 ---------- */
+.logo{font-size:58px;text-align:center;line-height:1;animation:bounce 2.2s ease-in-out infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+h1{
+  text-align:center;font-size:26px;margin:10px 0 4px;
+  background:linear-gradient(90deg,#ff7675,#6c5ce7,#00b894);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:1px;
+}
+.sub{text-align:center;color:#7a7a8c;font-size:14px;margin:0 0 20px;}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.level-btn{
+  border:none;border-radius:20px;padding:16px 6px 14px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:inherit;color:#fff;font-weight:700;
+  transition:transform .18s ease,box-shadow .18s ease;
+  box-shadow:0 6px 0 rgba(0,0,0,.13);
+}
+.level-btn .ico{font-size:30px;line-height:1;}
+.level-btn .lbl{font-size:17px;}
+.level-btn .desc{font-size:11px;font-weight:500;opacity:.92;}
+.level-btn.easy{background:linear-gradient(160deg,#55efc4,#00b894);}
+.level-btn.medium{background:linear-gradient(160deg,#ffeaa7,#f39c12);}
+.level-btn.hard{background:linear-gradient(160deg,#ff9a9e,#e74c3c);}
+.level-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13);}
+@media(hover:hover){.level-btn:hover{transform:translateY(-3px) scale(1.02);}}
+.tips{text-align:center;font-size:13px;color:#8e8ea0;margin:18px 0 0;}
+
+/* ---------- 游戏页 ---------- */
+.hud{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;color:#6c5ce7;margin-bottom:10px;}
+.hud-item{background:#f1f0ff;border-radius:999px;padding:6px 14px;}
+.hud-item.score{background:#fff4e0;color:#e17055;}
+
+.timer-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.timer-track{flex:1;height:14px;background:#ececf5;border-radius:999px;overflow:hidden;}
+.timer-fill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#00b894,#55efc4);transition:width .1s linear;}
+.timer-fill.warn{background:linear-gradient(90deg,#f39c12,#ffeaa7);}
+.timer-fill.danger{background:linear-gradient(90deg,#d63031,#ff7675);animation:pulse .6s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.timer-num{font-size:15px;font-weight:800;color:#00b894;min-width:34px;text-align:right;}
+.timer-num.warn{color:#e17055;}
+.timer-num.danger{color:#d63031;}
+
+.question{
+  font-size:22px;line-height:1.7;font-weight:600;text-align:center;
+  margin:8px 0 18px;color:#2d3436;word-break:break-word;
+}
+.blank{
+  display:inline-block;min-width:62px;
+  border-bottom:4px dashed #6c5ce7;color:#6c5ce7;
+  padding:0 6px;margin:0 2px;
+}
+
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.option{
+  font-family:inherit;font-size:19px;font-weight:600;
+  padding:15px 8px;border-radius:16px;cursor:pointer;
+  background:#fff;color:#2d3436;
+  border:2.5px solid #dfe6e9;
+  box-shadow:0 4px 0 #e8ecf1;
+  transition:transform .15s ease,border-color .15s ease,background .15s ease;
+  animation:optIn .32s ease backwards;
+}
+@keyframes optIn{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}
+.option:active{transform:translateY(3px);box-shadow:0 1px 0 #e8ecf1;}
+@media(hover:hover){.option:not(:disabled):hover{transform:translateY(-3px);border-color:#74b9ff;box-shadow:0 7px 0 #e8ecf1;}}
+.option:disabled{cursor:default;}
+.option.correct{background:linear-gradient(160deg,#55efc4,#00b894);color:#fff;border-color:transparent;box-shadow:0 4px 0 #009e7f;animation:pop .4s ease;}
+.option.wrong{background:linear-gradient(160deg,#ffb3b3,#ff7675);color:#fff;border-color:transparent;box-shadow:0 4px 0 #d84b4b;animation:shake .4s ease;}
+.option.correct:disabled,.option.wrong:disabled{opacity:1;}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}60%{transform:translateX(7px)}80%{transform:translateX(-4px)}}
+
+.feedback{margin-top:14px;border-radius:16px;padding:0 14px;max-height:0;overflow:hidden;opacity:0;transition:all .3s ease;}
+.feedback.show{max-height:400px;opacity:1;padding:14px;}
+.feedback.ok{background:#e8fff6;border:2px solid #55efc4;}
+.feedback.bad{background:#fff1f1;border:2px solid #ffb3b3;}
+.fb-title{font-size:16px;font-weight:800;margin-bottom:6px;}
+.feedback.ok .fb-title{color:#009e7f;}
+.feedback.bad .fb-title{color:#d63031;}
+.fb-answer{font-size:15px;margin-bottom:6px;color:#2d3436;}
+.fb-answer b{color:#6c5ce7;font-size:17px;}
+.fb-exp{font-size:14px;line-height:1.6;color:#636e72;}
+
+.next-btn{
+  display:none;width:100%;margin-top:16px;padding:16px;
+  font-family:inherit;font-size:17px;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+  border:none;border-radius:18px;cursor:pointer;
+  box-shadow:0 5px 0 #5a4bd1;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.next-btn:active{transform:translateY(4px);box-shadow:0 1px 0 #5a4bd1;}
+@media(hover:hover){.next-btn:hover{transform:translateY(-2px);}}
+
+/* ---------- 结束页 ---------- */
+.result-ico{font-size:64px;text-align:center;animation:bounce 1.8s ease-in-out infinite;}
+.result-title{text-align:center;font-size:24px;font-weight:800;margin:6px 0 2px;color:#6c5ce7;}
+.result-score{text-align:center;font-size:42px;font-weight:900;margin:8px 0;
+  background:linear-gradient(90deg,#00b894,#6c5ce7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.result-msg{text-align:center;font-size:15px;color:#636e72;margin-bottom:20px;line-height:1.6;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{
+  font-family:inherit;font-size:16px;font-weight:800;padding:15px 8px;
+  border:none;border-radius:16px;cursor:pointer;color:#fff;
+  transition:transform .15s ease;
+}
+.btn:active{transform:scale(.96);}
+.btn.primary{background:linear-gradient(135deg,#00b894,#55efc4);box-shadow:0 5px 0 #009e7f;}
+.btn.secondary{background:linear-gradient(135deg,#6c5ce7,#a29bfe);box-shadow:0 5px 0 #5a4bd1;}
+
+@media(max-width:380px){
+  .question{font-size:19px;}
+  .option{font-size:17px;padding:13px 6px;}
+  .level-btn .lbl{font-size:15px;}
+}
+</style>
+</head>
+<body class="notranslate" translate="no">
+<div id="app">
+
+  <!-- ======= 开始页 ======= -->
+  <div id="startScreen" class="screen active">
+    <div class="card">
+      <div class="logo">📚</div>
+      <h1>汉语词汇练习</h1>
+      <p class="sub">by lcnpalembang-08994477998！</p>
+      <div class="levels">
+        <button class="level-btn easy" data-level="mudah">
+          <span class="ico">🌱</span><span class="lbl">容易</span><span class="desc">基础词语</span>
+        </button>
+        <button class="level-btn medium" data-level="sedang">
+          <span class="ico">🌟</span><span class="lbl">中等</span><span class="desc">常用搭配</span>
+        </button>
+        <button class="level-btn hard" data-level="sulit">
+          <span class="ico">🔥</span><span class="lbl">困难</span><span class="desc">语法挑战</span>
+        </button>
+      </div>
+      <p class="tips">⏱ 每题限时 20 秒 · 共 10 题 · 每次重新开始都会打乱题目和选项</p>
+    </div>
+  </div>
+
+  <!-- ======= 游戏页 ======= -->
+  <div id="gameScreen" class="screen">
+    <div class="card">
+      <div class="hud">
+        <div class="hud-item">📖 <span id="progressText">1 / 10</span></div>
+        <div class="hud-item score">⭐ 得分 <span id="scoreText">0</span></div>
+      </div>
+      <div class="timer-row">
+        <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="timer-num" id="timerNum">20</div>
+      </div>
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsBox"></div>
+      <div class="feedback" id="feedbackBox"></div>
+      <button class="next-btn" id="nextBtn">下一题 ➡️</button>
+    </div>
+  </div>
+
+  <!-- ======= 结束页 ======= -->
+  <div id="endScreen" class="screen">
+    <div class="card">
+      <div class="result-ico" id="resultIco">🎉</div>
+      <div class="result-title" id="resultTitle">练习完成！</div>
+      <div class="result-score" id="resultScore">0 / 10</div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="replayBtn">🔁 再玩一次</button>
+        <button class="btn secondary" id="homeBtn">🏠 选难度</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =========================================================
+     题库：q=句子  a=正确答案  d=干扰项  exp=解释
+     ========================================================= */
+  const BANKS = {
+    mudah: [
+      {q:'妈妈____我帮她买菜。', a:'让', d:['给','接','次','就','懂','那'], exp:'“让”表示叫别人做某事：妈妈让我帮她买菜。'},
+      {q:'我想去西安____。', a:'旅游', d:['帮忙','意思','介绍','次','给','懂'], exp:'“旅游”就是出去玩、看风景。'},
+      {q:'这个字是什么____？', a:'意思', d:['帮忙','旅游','次','介绍','懂','就'], exp:'“……是什么意思”用来问词句的含义。'},
+      {q:'你有空吗？我想请你____。', a:'帮忙', d:['旅游','意思','介绍','给','接','懂'], exp:'“请人帮忙”就是请别人来帮助自己。'},
+      {q:'我____吃过饭了，现在不饿。', a:'已经', d:['就','有时','那','次','给','让'], exp:'“已经”表示这件事在说话之前就完成了。'},
+      {q:'他____会来我家玩儿。', a:'有时', d:['已经','就','次','给','接','懂'], exp:'“有时”表示有的时候会这样，不是每次都这样。'},
+      {q:'这是我的朋友，我给你们____一下。', a:'介绍', d:['帮忙','旅游','意思','懂','接','次'], exp:'“介绍”是把人或事物说给别人认识。'},
+      {q:'这____是我第一次来北京。', a:'次', d:['就','给','让','那','懂','接'], exp:'“次”是量词：第一次、第二次、第三次。'},
+      {q:'我们坐____去学校吧，不用走路。', a:'公交车', d:['车站','教室','票','名','间','别'], exp:'“坐公交车”是一种出行方式。'},
+      {q:'学校离我家很____，走路要一个小时。', a:'远', d:['近','高','快','长','舒服','累'], exp:'“远”表示距离长，和“近”相反。'},
+      {q:'我家离学校很____，走五分钟就到了。', a:'近', d:['远','高','快','长','舒服','累'], exp:'“近”表示距离短，和“远”相反。'},
+      {q:'我们____去北大吧，坐公交车太慢了。', a:'打车', d:['公交车','车站','教室','票','名','间'], exp:'“打车”就是坐出租车。'},
+      {q:'他是____人，不是中国人。', a:'外国', d:['网上','万','名','间','别','啊'], exp:'“外国人”指不是本国的人。'},
+      {q:'我在____买了两本书。', a:'网上', d:['外国','万','名','间','票','别'], exp:'“网上”指在网络上买东西、看书。'},
+      {q:'教室里有二十____学生。', a:'名', d:['间','万','票','别','啊','次'], exp:'“名”可以数人：二十名学生。'},
+      {q:'我们学校有一百____教室。', a:'间', d:['名','万','票','别','啊','次'], exp:'“间”是房间的量词：一间教室。'},
+      {q:'我们____去吃饭吧。', a:'一起', d:['回来','出去','自己','这么','为什么','不错'], exp:'“一起”表示和某个人共同做一件事。'},
+      {q:'这个西瓜太重了，我____不动。', a:'拿', d:['洗','送','手','累','出去','回来'], exp:'“拿不动”表示东西太重，拿不起来。'},
+      {q:'吃完饭我帮你____碗。', a:'洗', d:['拿','送','手','累','出去','回来'], exp:'“洗碗”就是把碗洗干净。'},
+      {q:'北京____很好吃，你一定要尝尝。', a:'烤鸭', d:['旅游','意思','介绍','帮忙','次','就'], exp:'北京烤鸭是北京很有名的一道菜。'}
+    ],
+
+    sedang: [
+      {q:'虽然天气很冷，____他还是去跑步了。', a:'但是', d:['因为','所以','还是','更','就','点'], exp:'“虽然……但是……”是一对固定搭配，表示转折。'},
+      {q:'____今天下雨，所以我们没有去公园。', a:'因为', d:['但是','虽然','还是','更','点','过'], exp:'“因为……所以……”表示原因和结果。'},
+      {q:'他____我高。', a:'比', d:['更','跟','从','往','得','点'], exp:'“A比B……”用来比较两个人的高矮、大小等。'},
+      {q:'我____了他的名字，怎么也想不起来。', a:'忘', d:['记得','懂','打开','准备','介绍','笑'], exp:'“忘”是忘记，和“记得”意思相反。'},
+      {q:'明天有____，我要好好复习。', a:'考试', d:['本子','笔','词','题','门','笑'], exp:'“考试”是用来检查学习情况的方式。'},
+      {q:'这道____太难了，我不会做。', a:'题', d:['词','本子','笔','考试','门','错'], exp:'“题”指题目：这道题、那道题。'},
+      {q:'我的____上写满了生词。', a:'本子', d:['题','词','笔','考试','门','笑'], exp:'“本子”是写字用的本子。'},
+      {q:'他用____画了一只小猫。', a:'画笔', d:['蛋糕','床','礼物','手表','书包','裤子'], exp:'“画笔”是画画用的笔。'},
+      {q:'这条____太长了，我想换一条。', a:'裤子', d:['书包','手表','蛋糕','床','门','鱼'], exp:'“条”是裤子的量词：一条裤子。'},
+      {q:'生日的时候，妈妈给我买了一个大____。', a:'蛋糕', d:['画笔','床','礼物','手表','书包','鱼'], exp:'过生日的时候常常吃生日蛋糕。'},
+      {q:'我坐在他的____边，很近。', a:'左', d:['右','比','往','从','跟','得'], exp:'“左边”表示靠左的那一边。'},
+      {q:'书包在桌子____，不在桌子上。', a:'下面', d:['上面','后面','左边','右边','旁边','门口'], exp:'“下面”和“上面”相对，表示位置低的地方。'},
+      {q:'他刚从楼上走____。', a:'下来', d:['上去','下去','进来','出去','回来','回去'], exp:'“下来”表示从高处到低处，而且朝着说话人的方向。'},
+      {q:'请____，外面有人找你。', a:'进来', d:['出去','回来','回去','上来','下去','下来'], exp:'“进来”表示从外面到里面，朝着说话人的方向。'},
+      {q:'他每天下午都去____篮球。', a:'打', d:['踢','跑','游','得','运动','开始'], exp:'“打篮球”是固定搭配。'},
+      {q:'我妹妹很喜欢____足球。', a:'踢', d:['打','跑','游','得','开始','运动'], exp:'“踢足球”是固定搭配。'},
+      {q:'我的____是听音乐和看书。', a:'爱好', d:['运动','篮球','足球','跑步','游泳','考试'], exp:'“爱好”指平时最喜欢做的事。'},
+      {q:'电影____开始了，我们快一点！', a:'快要', d:['还是','一起','有时','就','更','但是'], exp:'“快要……了”表示马上就要发生。'},
+      {q:'下课了，我们____去食堂吧。', a:'一起', d:['回来','出去','自己','这么','为什么','不错'], exp:'“一起”表示和某个人共同做一件事。'},
+      {q:'他____我一起去逛街。', a:'跟', d:['给','让','从','往','比','得'], exp:'“跟……一起”表示和某人共同做一件事。'},
+      {q:'因为下雨，____我们没去公园。', a:'所以', d:['但是','虽然','因为','还是','更','点'], exp:'“因为……所以……”表示原因和结果。'},
+      {q:'这本书很____，我看了三遍。', a:'有意思', d:['舒服','累','远','快','长','错'], exp:'“有意思”表示有趣，让人喜欢看。'},
+      {q:'请____一会儿，他马上就来。', a:'等', d:['拿','送','洗','走','笑','试'], exp:'“等一会儿”就是稍等片刻。'},
+      {q:'我每个____都去图书馆看书。', a:'周', d:['次','名','间','万','点','条'], exp:'“每周”就是每个星期。'},
+      {q:'妈妈让我____她洗碗。', a:'帮', d:['给','让','跟','往','从','比'], exp:'“帮某人做某事”就是帮助别人做事情。'},
+      {q:'这件衣服太小了，我想____一下。', a:'试', d:['洗','拿','送','等','画','打开'], exp:'“试”是试一试，看看合不合适。'}
+    ],
+
+    sulit: [
+      {q:'他篮球打____非常好。', a:'得', d:['的','地','了','着','过','比'], exp:'“得”放在动词后面，表示动作做得怎么样。'},
+      {q:'他高兴____跳了起来。', a:'地', d:['得','的','了','着','过','就'], exp:'“地”放在表示状态的词和动词之间，如“高兴地跳”。'},
+      {q:'我昨天看____那部电影，很好看。', a:'过', d:['得','的','地','了','着','就'], exp:'“过”表示以前有过这样的经历。'},
+      {q:'请你把书____我，谢谢。', a:'给', d:['让','跟','往','从','比','得'], exp:'“给某人东西”表示把东西交给别人。'},
+      {q:'虽然你忘了，____我一直记得。', a:'但是', d:['因为','所以','还是','更','就','也'], exp:'“虽然……但是……”表示转折关系。'},
+      {q:'请问，从这儿____北走怎么走？', a:'往', d:['从','比','跟','给','得','在'], exp:'“往”表示动作的方向：往北走、往前走。'},
+      {q:'他____家里跑到学校，只用了十分钟。', a:'从', d:['往','比','跟','给','得','在'], exp:'“从……到……”表示起点和终点。'},
+      {q:'老师____我们读课文。', a:'让', d:['给','跟','往','从','比','得'], exp:'“让某人做某事”表示叫别人去做。'},
+      {q:'这本书我看____了，还给你。', a:'完', d:['过','得','的','地','了','着'], exp:'“完”放在动词后面，表示动作结束。'},
+      {q:'他的个子很____，打篮球很厉害。', a:'高', d:['长','远','快','更','舒服','错'], exp:'“个子高”指人的身材高。'},
+      {q:'我们____走路去吧，不远。', a:'还是', d:['但是','虽然','因为','所以','更','就'], exp:'“还是”用来提出另一个选择或者建议。'},
+      {q:'你____我的意思吗？', a:'懂', d:['记得','忘','介绍','笑','准备','打开'], exp:'“懂……的意思”表示明白、理解。'},
+      {q:'我____他一起去酒店。', a:'跟', d:['给','让','往','从','比','得'], exp:'“跟……一起”表示和某人共同做一件事。'},
+      {q:'他把作业写____了。', a:'完', d:['过','得','的','地','着','比'], exp:'“写完”表示写完了，动作结束。'},
+      {q:'他在门外站着，我请他____。', a:'进来', d:['出去','上去','下去','上来','下来','回去'], exp:'“进来”表示从外面到里面，朝着说话人的方向。'},
+      {q:'这个字我学____，可是又忘了。', a:'过', d:['完','得','的','地','着','比'], exp:'“学过”表示以前有过学习的经历。'},
+      {q:'对不起，我____带作业了。', a:'忘', d:['记得','懂','介绍','笑','准备','打开'], exp:'“忘带”就是忘记带了，和“记得”相反。'},
+      {q:'我去过三____北京，每次都很开心。', a:'次', d:['名','间','万','点','条','周'], exp:'“次”是量词，用来数动作的次数。'},
+      {q:'请____我一下，这个字怎么读？', a:'帮', d:['给','让','跟','往','从','比'], exp:'“帮某人”就是帮助某人做事情。'},
+      {q:'他最喜欢的运动是____。', a:'游泳', d:['跑步','篮球','足球','运动','爱好','考试'], exp:'“游泳”是在水里进行的一种运动。'},
+      {q:'他跑____很快，跑一百米只要十二秒。', a:'得', d:['的','地','了','着','过','比'], exp:'“跑得很快”中“得”后面接程度补语。'}
+    ]
+  };
+
+  const QUESTIONS_PER_ROUND = 10;
+  const TIME_LIMIT = 20000;   // 20 秒
+  const TICK = 100;
+
+  /* ================= DOM ================= */
+  const $ = id => document.getElementById(id);
+  const els = {
+    startScreen: $('startScreen'),
+    gameScreen: $('gameScreen'),
+    endScreen: $('endScreen'),
+    progressText: $('progressText'),
+    scoreText: $('scoreText'),
+    timerFill: $('timerFill'),
+    timerNum: $('timerNum'),
+    questionText: $('questionText'),
+    optionsBox: $('optionsBox'),
+    feedbackBox: $('feedbackBox'),
+    nextBtn: $('nextBtn'),
+    resultIco: $('resultIco'),
+    resultTitle: $('resultTitle'),
+    resultScore: $('resultScore'),
+    resultMsg: $('resultMsg'),
+    replayBtn: $('replayBtn'),
+    homeBtn: $('homeBtn')
+  };
+
+  /* ================= 状态 ================= */
+  const state = {
+    level: 'mudah',
+    questions: [],
+    index: 0,
+    correctCount: 0,
+    answered: false,
+    tickTimer: null,
+    autoTimer: null,
+    timeLeft: TIME_LIMIT
+  };
+
+  /* ================= 工具 ================= */
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildOptions(q){
+    const seen = new Set([q.a]);
+    const distractors = [];
+    for(const w of shuffle(q.d)){
+      if(distractors.length >= 5) break;
+      if(seen.has(w)) continue;
+      seen.add(w);
+      distractors.push(w);
+    }
+    return shuffle([q.a, ...distractors]);
+  }
+
+  function showScreen(name){
+    [els.startScreen, els.gameScreen, els.endScreen].forEach(s => s.classList.remove('active'));
+    if(name === 'start') els.startScreen.classList.add('active');
+    if(name === 'game') els.gameScreen.classList.add('active');
+    if(name === 'end') els.endScreen.classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  /* ================= 计时器 ================= */
+  function stopTimer(){
+    if(state.tickTimer){ clearInterval(state.tickTimer); state.tickTimer = null; }
+  }
+  function clearAuto(){
+    if(state.autoTimer){ clearTimeout(state.autoTimer); state.autoTimer = null; }
+  }
+  function updateTimerUI(){
+    const left = Math.max(0, state.timeLeft);
+    const ratio = left / TIME_LIMIT;
+    els.timerFill.style.width = (ratio * 100) + '%';
+    const sec = Math.ceil(left / 1000);
+    els.timerNum.textContent = sec;
+
+    els.timerFill.classList.remove('warn','danger');
+    els.timerNum.classList.remove('warn','danger');
+    if(left <= 5000){
+      els.timerFill.classList.add('danger');
+      els.timerNum.classList.add('danger');
+    }else if(left <= 10000){
+      els.timerFill.classList.add('warn');
+      els.timerNum.classList.add('warn');
+    }
+  }
+  function startTimer(){
+    stopTimer();
+    state.timeLeft = TIME_LIMIT;
+    updateTimerUI();
+    state.tickTimer = setInterval(function(){
+      state.timeLeft -= TICK;
+      if(state.timeLeft <= 0){
+        state.timeLeft = 0;
+        updateTimerUI();
+        stopTimer();
+        onTimeout();
+        return;
+      }
+      updateTimerUI();
+    }, TICK);
+  }
+
+  /* ================= 开始游戏 ================= */
+  function startGame(level){
+    state.level = level;
+    const bank = BANKS[level] || BANKS.mudah;
+    const count = Math.min(QUESTIONS_PER_ROUND, bank.length);
+
+    // 每次开始都重新打乱题目顺序 + 选项顺序
+    state.questions = shuffle(bank).slice(0, count).map(function(item){
+      return {
+        q: item.q,
+        a: item.a,
+        exp: item.exp,
+        options: buildOptions(item)
+      };
+    });
+
+    state.index = 0;
+    state.correctCount = 0;
+    state.answered = false;
+    clearAuto();
+    stopTimer();
+
+    els.scoreText.textContent = '0';
+    showScreen('game');
+    renderQuestion();
+  }
+
+  /* ================= 渲染题目 ================= */
+  function renderQuestion(){
+    const q = state.questions[state.index];
+    state.answered = false;
+
+    els.progressText.textContent = (state.index + 1) + ' / ' + state.questions.length;
+    els.questionText.innerHTML = q.q.replace('____', '<span class="blank">？</span>');
+
+    els.optionsBox.innerHTML = '';
+    q.options.forEach(function(opt, i){
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.type = 'button';
+      btn.textContent = opt;
+      btn.dataset.value = opt;
+      btn.style.animationDelay = (i * 55) + 'ms';
+      btn.addEventListener('click', function(){ selectOption(btn); });
+      els.optionsBox.appendChild(btn);
+    });
+
+    els.feedbackBox.className = 'feedback';
+    els.feedbackBox.innerHTML = '';
+    els.nextBtn.style.display = 'none';
+    els.nextBtn.textContent = (state.index === state.questions.length - 1)
+      ? '看结果 🎉'
+      : '下一题 ➡️';
+
+    startTimer();
+  }
+
+  /* ================= 选择答案 ================= */
+  function selectOption(btn){
+    if(state.answered) return;
+    state.answered = true;
+    stopTimer();
+    clearAuto();
+
+    const q = state.questions[state.index];
+    const isCorrect = (btn.dataset.value === q.a);
+
+    Array.prototype.forEach.call(els.optionsBox.children, function(b){
+      b.disabled = true;
+      if(b.dataset.value === q.a) b.classList.add('correct');
+    });
+
+    if(isCorrect){
+      state.correctCount++;
+      els.scoreText.textContent = state.correctCount;
+      showFeedback(true, q);
+    }else{
+      btn.classList.add('wrong');
+      showFeedback(false, q);
+    }
+
+    els.nextBtn.style.display = 'block';
+  }
+
+  /* ================= 超时 ================= */
+  function onTimeout(){
+    if(state.answered) return;
+    state.answered = true;
+
+    const q = state.questions[state.index];
+    Array.prototype.forEach.call(els.optionsBox.children, function(b){
+      b.disabled = true;
+      if(b.dataset.value === q.a) b.classList.add('correct');
+    });
+
+    els.feedbackBox.className = 'feedback show bad';
+    els.feedbackBox.innerHTML =
+      '<div class="fb-title">⏰ 时间到！</div>' +
+      '<div class="fb-answer">正确答案：<b>' + q.a + '</b></div>' +
+      '<div class="fb-exp">' + q.exp + '</div>';
+
+    els.nextBtn.style.display = 'block';
+
+    // 时间到后短暂展示答案，再自动进入下一题
+    state.autoTimer = setTimeout(function(){
+      state.autoTimer = null;
+      nextQuestion();
+    }, 2200);
+  }
+
+  /* ================= 反馈 ================= */
+  function showFeedback(isCorrect, q){
+    els.feedbackBox.className = 'feedback show ' + (isCorrect ? 'ok' : 'bad');
+    els.feedbackBox.innerHTML =
+      '<div class="fb-title">' + (isCorrect ? '🎉 答对了，真棒！' : '💡 再想一想～') + '</div>' +
+      '<div class="fb-answer">正确答案：<b>' + q.a + '</b></div>' +
+      '<div class="fb-exp">' + q.exp + '</div>';
+  }
+
+  /* ================= 下一题 ================= */
+  function nextQuestion(){
+    clearAuto();
+    stopTimer();
+    state.index++;
+    if(state.index >= state.questions.length){
+      endGame();
+    }else{
+      renderQuestion();
+    }
+  }
+
+  /* ================= 结束 ================= */
+  function endGame(){
+    stopTimer();
+    clearAuto();
+
+    const total = state.questions.length;
+    const score = state.correctCount;
+    const rate = total ? Math.round(score / total * 100) : 0;
+
+    els.resultScore.textContent = score + ' / ' + total;
+
+    let ico = '🌱', title = '继续加油！', msg = '';
+    if(rate >= 90){ ico = '🏆'; title = '太厉害了！'; msg = '你的汉语词汇掌握得非常好，继续保持！'; }
+    else if(rate >= 70){ ico = '🎉'; title = '很棒！'; msg = '大部分都答对了，再把错过的词复习一下就完美啦。'; }
+    else if(rate >= 50){ ico = '💪'; title = '还不错！'; msg = '已经掌握一半啦，多读几遍生词，下次会更好。'; }
+    else { ico = '📖'; title = '再练一练吧！'; msg = '别着急，先把生词表读熟，然后再来挑战一次。'; }
+
+    els.resultIco.textContent = ico;
+    els.resultTitle.textContent = title;
+    els.resultMsg.innerHTML = msg + '<br>正确率：<b>' + rate + '%</b>';
+
+    showScreen('end');
+  }
+
+  /* ================= 事件绑定 ================= */
+  document.querySelectorAll('.level-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      startGame(btn.dataset.level);
+    });
+  });
+
+  els.nextBtn.addEventListener('click', nextQuestion);
+
+  els.replayBtn.addEventListener('click', function(){
+    startGame(state.level);   // 重新开始 → 题目与选项重新打乱
+  });
+
+  els.homeBtn.addEventListener('click', function(){
+    stopTimer(); clearAuto();
+    showScreen('start');
+  });
+
+  /* =========================================================
+     保护设置：禁止右键、复制、选取、Ctrl+F12 等
+     ========================================================= */
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); return false; }, false);
+  document.addEventListener('selectstart', function(e){ e.preventDefault(); return false; }, false);
+  document.addEventListener('copy', function(e){ e.preventDefault(); return false; }, false);
+  document.addEventListener('cut', function(e){ e.preventDefault(); return false; }, false);
+  document.addEventListener('dragstart', function(e){ e.preventDefault(); return false; }, false);
+  document.addEventListener('keydown', function(e){
+    const k = e.keyCode || e.which;
+    // F12
+    if(k === 123){ e.preventDefault(); return false; }
+    // Ctrl+Shift+I / J / C / K
+    if(e.ctrlKey && e.shiftKey && (k === 73 || k === 74 || k === 67 || k === 75)){
+      e.preventDefault(); return false;
+    }
+    // Ctrl + C / X / A / S / U / P / F12
+    if(e.ctrlKey && (k === 67 || k === 88 || k === 65 || k === 83 || k === 85 || k === 80 || k === 123)){
+      e.preventDefault(); return false;
+    }
+    // Mac: Cmd + C / X / A / S / U
+    if(e.metaKey && (k === 67 || k === 88 || k === 65 || k === 83 || k === 85)){
+      e.preventDefault(); return false;
+    }
+  }, false);
+
+  // 防止手机双指缩放导致布局错乱（可选）
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, false);
+
+  // 页面切到后台时暂停计时（避免回来时瞬间超时）
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ stopTimer(); }
+    else if(!state.answered && els.gameScreen.classList.contains('active') && state.tickTimer === null && state.timeLeft > 0){
+      // 恢复计时
+      state.tickTimer = setInterval(function(){
+        state.timeLeft -= TICK;
+        if(state.timeLeft <= 0){
+          state.timeLeft = 0; updateTimerUI(); stopTimer(); onTimeout(); return;
+        }
+        updateTimerUI();
+      }, TICK);
+    }
+  });
+
+  showScreen('start');
+})();
+</script>
+</body>
+</html>
